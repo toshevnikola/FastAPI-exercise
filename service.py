@@ -1,14 +1,18 @@
 from typing import Optional
 import model
 from sqlalchemy.orm import Session
-from dto.request_objects import BookRequest
+
+from dto.request_objects import BookRequest, CategoryRequest
 
 
 class BookService:
 
     def create_book(self, book_request: BookRequest, db: Session):
         """creates a new book and stores it in the db"""
-        book = model.Book(title=book_request.title, author=book_request.author, price=book_request.price)
+        categories = db.query(model.Category).filter(model.Category.id.in_(book_request.category_ids)).all()
+        print(categories)
+        book = model.Book(title=book_request.title, author=book_request.author, price=book_request.price,
+                          categories=categories)
         db.add(book)
         db.commit()
         db.refresh(book)
@@ -42,3 +46,15 @@ class BookService:
             db.commit()
             return {"Deleted": True}
         return {"Deleted": False}
+
+
+class CategoryService:
+    def get_categories(self, db: Session):
+        return db.query(model.Category).all()
+
+    def create_category(self, db: Session, category_request: CategoryRequest):
+        category = model.Category(name=category_request.name, description=category_request.description)
+        db.add(category)
+        db.commit()
+        db.refresh(category)
+        return category

@@ -8,7 +8,6 @@ from dto.request_objects import BookRequest
 
 book_route = APIRouter()
 
-bs: BookService = Depends(BookService)
 
 
 @book_route.get("/")
