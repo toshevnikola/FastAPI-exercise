@@ -12,3 +12,5 @@ class Book(Base):
     author = Column(String(128))
     price = Column(Numeric(10, 2))
 
+    class Config:
+        orm_mode = True

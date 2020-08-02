@@ -1,26 +1,15 @@
 from typing import Optional
 
-from pydantic.main import BaseModel
-from sqlalchemy import Column, String, Numeric
-from fastapi.responses import RedirectResponse
-from fastapi.encoders import jsonable_encoder
+from services import BookService
 from database import get_db
 
-from database import engine, SessionLocal, Base
 import models
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, Path, Body, APIRouter
+from fastapi import Depends, Path, APIRouter
+
+from dto.request_objects import BookRequest
 
 book_router = APIRouter()
-
-
-class BookRequest(BaseModel):
-    title: str
-    author: str
-    price: int
-
-
-models.Base.metadata.create_all(bind=engine)
 
 
 @book_router.get("/")
@@ -30,16 +19,9 @@ def get_home():
 
 
 @book_router.post("/books")
-async def create_book(book_request: BookRequest, db: Session = Depends(get_db)):
+def create_book(book_request: BookRequest, db: Session = Depends(get_db)):
     """creates a new book and stores it in the db"""
-    book = models.Book()
-    book.author = book_request.author
-    book.price = book_request.price
-    book.title = book_request.title
-
-    db.add(book)
-    db.commit()
-    return {"Created": True}
+    return BookService.create_book(book_request, db)
 
 
 @book_router.get("/books")
