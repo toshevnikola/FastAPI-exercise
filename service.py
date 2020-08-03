@@ -9,9 +9,10 @@ from dto.request_objects import BookRequest, CategoryRequest
 
 
 class BookService:
+    def __init__(self):
+        pass
 
     def create_book(self, book_request: BookRequest, db: Session):
-        """creates a new book and stores it in the db"""
         categories = db.query(model.Category).filter(model.Category.id.in_(book_request.category_ids)).all()
         print(categories)
         book = model.Book(title=book_request.title, author=book_request.author, price=book_request.price,
@@ -31,12 +32,23 @@ class BookService:
         return query_result.all()
 
     def get_book(self, db: Session, id: int):
-        return db.query(model.Book).filter(model.Book.id == id).first()
+
+        return self.validate_book_id(id, db)
 
     def modify_book(self, db: Session, modified_book: BookRequest, book: model.Book):
         book.title = modified_book.title
         book.price = modified_book.price
         book.author = modified_book.author
+        book.categories = db.query(model.Category).filter(model.Category.id.in_(modified_book.category_ids)).all()
+        db.commit()
+        db.refresh(book)
+        return book
+
+    def add_category(self, book: model.Book, category_ids: list, db: Session):
+        categories = db.query(model.Category).filter(model.Category.id.in_(category_ids)).all()
+        book.categories.extend(categories)
+        print(book.categories)
+        print(categories)
         db.commit()
         db.refresh(book)
         return book
@@ -52,6 +64,7 @@ class BookService:
     def validate_book_id(self, id: int, db: Session):
         book = db.query(model.Book).filter(model.Book.id == id).first()
         if book:
+            book.categories = book.categories
             return book
         else:
             raise HTTPException(status_code=405, detail="Book with id {:d} doesn't exist".format(id))
