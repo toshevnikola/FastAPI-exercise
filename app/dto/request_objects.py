@@ -2,8 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from database import engine, SessionLocal, Base
-import model
+from app import model
 
 
 class CategoryRequest(BaseModel):

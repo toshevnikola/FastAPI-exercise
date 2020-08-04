@@ -1,15 +1,16 @@
 from typing import Optional
-from service import CategoryService
-from database import get_db
+from app.service import CategoryService
+from app.database import MySqlConnection
 from sqlalchemy.orm import Session
 from fastapi import Depends, Path, APIRouter
-
-from dto.request_objects import CategoryRequest
+from app.dto.request_objects import CategoryRequest
+from app.main import *
 
 category_route = APIRouter()
 
 category_service = CategoryService
 
+get_db = MySqlConnection().get_db
 
 @category_route.get("")
 def get_categories(name_filter: Optional[str] = None, description_filter: Optional[str] = None,
@@ -46,5 +47,3 @@ async def modify_category(id: int, modified_category: CategoryRequest, db: Sessi
 
     category = cs.validate_category_id(id, db)
     if category: return cs.modify_category(category, modified_category, db)
-
-

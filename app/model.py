@@ -1,15 +1,15 @@
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
-from database import Base
+from app.database import MySqlConnection
 
-association_table = Table('categories_books', Base.metadata,
+association_table = Table('categories_books', MySqlConnection.Base.metadata,
                           Column('categories_id', Integer, ForeignKey('categories.id')),
                           Column('books_id', Integer, ForeignKey('books.id'))
                           )
 
 
-class Category(Base):
+class Category(MySqlConnection.Base):
     __tablename__ = "categories"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -22,7 +22,7 @@ class Category(Base):
         orm_mode = True
 
 
-class Book(Base):
+class Book(MySqlConnection.Base):
     __tablename__ = "books"
 
     id = Column(Integer, primary_key=True, index=True)

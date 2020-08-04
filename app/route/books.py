@@ -1,15 +1,16 @@
 from typing import Optional, List
-from service import BookService
-from database import get_db
+from app.service import BookService
+from app.database import MySqlConnection
 from sqlalchemy.orm import Session
-from fastapi import Depends, Path, APIRouter, Body
+from fastapi import Depends, Path, APIRouter
 
-from dto.request_objects import BookRequest
+from app.dto.request_objects import BookRequest
 
 book_route = APIRouter()
 
 book_service = BookService
 
+get_db = MySqlConnection().get_db
 
 @book_route.post("")
 def create_book(book_request: BookRequest, db: Session = Depends(get_db), bs: BookService = Depends(book_service)):

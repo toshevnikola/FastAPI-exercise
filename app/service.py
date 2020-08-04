@@ -1,11 +1,10 @@
 from typing import Optional
 
 from fastapi import HTTPException
-from fastapi import status
-import model
+from app import model
 from sqlalchemy.orm import Session
 
-from dto.request_objects import BookRequest, CategoryRequest
+from app.dto.request_objects import BookRequest, CategoryRequest
 
 
 class BookService:
@@ -20,7 +19,7 @@ class BookService:
         db.add(book)
         db.commit()
         db.refresh(book)
-        return book
+        return "Created"
 
     def get_books(self, db: Session, price_filter: Optional[float] = None, author_filter: Optional[str] = None):
         query_result = db.query(model.Book)
