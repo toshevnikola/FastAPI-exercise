@@ -1,6 +1,7 @@
 from typing import Optional
+
+from app.database import SessionLocal
 from app.service import CategoryService
-from app.database import MySqlConnection
 from sqlalchemy.orm import Session
 from fastapi import Depends, Path, APIRouter
 from app.dto.request_objects import CategoryRequest
@@ -10,7 +11,13 @@ category_route = APIRouter()
 
 category_service = CategoryService
 
-get_db = MySqlConnection().get_db
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @category_route.get("")
 def get_categories(name_filter: Optional[str] = None, description_filter: Optional[str] = None,

@@ -1,6 +1,7 @@
 from typing import Optional, List
+
+from app.database import SessionLocal
 from app.service import BookService
-from app.database import MySqlConnection
 from sqlalchemy.orm import Session
 from fastapi import Depends, Path, APIRouter
 
@@ -10,7 +11,13 @@ book_route = APIRouter()
 
 book_service = BookService
 
-get_db = MySqlConnection().get_db
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @book_route.post("")
 def create_book(book_request: BookRequest, db: Session = Depends(get_db), bs: BookService = Depends(book_service)):

@@ -1,4 +1,4 @@
-from app.database import MySqlConnection, SQLiteConnection
+from app.database import engine, SessionLocal
 from app import model
 from fastapi import FastAPI
 from app.route.books import book_route
@@ -8,7 +8,16 @@ app = FastAPI()
 
 app.include_router(book_route, tags=["books"], prefix='/books')
 app.include_router(category_route, tags=["categories"], prefix='/categories')
-model.MySqlConnection.Base.metadata.create_all(bind=MySqlConnection.engine)
+model.Base.metadata.create_all(bind=engine)
+
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/")
