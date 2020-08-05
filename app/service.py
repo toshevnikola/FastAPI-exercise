@@ -19,7 +19,7 @@ class BookService:
         db.add(book)
         db.commit()
         db.refresh(book)
-        return "Created"
+        return book
 
     def get_books(self, db: Session, price_filter: Optional[float] = None, author_filter: Optional[str] = None):
         query_result = db.query(model.Book)
@@ -41,15 +41,17 @@ class BookService:
         book.categories = db.query(model.Category).filter(model.Category.id.in_(modified_book.category_ids)).all()
         db.commit()
         db.refresh(book)
+        print(book.categories)
         return book
 
     def add_category(self, book: model.Book, category_ids: list, db: Session):
         categories = db.query(model.Category).filter(model.Category.id.in_(category_ids)).all()
         book.categories.extend(categories)
-        print(book.categories)
-        print(categories)
         db.commit()
         db.refresh(book)
+        book.categories = book.categories
+        print(book.categories)
+        print(categories)
         return book
 
     def delete_book(self, id: int, db: Session):

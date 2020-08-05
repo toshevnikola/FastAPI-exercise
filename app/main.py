@@ -11,14 +11,6 @@ app.include_router(category_route, tags=["categories"], prefix='/categories')
 model.Base.metadata.create_all(bind=engine)
 
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 @app.get("/")
 def get_main():

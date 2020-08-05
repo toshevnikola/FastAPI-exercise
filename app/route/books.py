@@ -4,20 +4,14 @@ from app.database import SessionLocal
 from app.service import BookService
 from sqlalchemy.orm import Session
 from fastapi import Depends, Path, APIRouter
-
+from app.database import get_db
 from app.dto.request_objects import BookRequest
 
 book_route = APIRouter()
 
 book_service = BookService
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 @book_route.post("")
 def create_book(book_request: BookRequest, db: Session = Depends(get_db), bs: BookService = Depends(book_service)):
