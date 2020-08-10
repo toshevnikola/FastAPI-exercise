@@ -15,3 +15,7 @@ class BookRequest(BaseModel):
     author: str
     price: int
     category_ids: List[int]
+
+class UserRequest(BaseModel):
+    username: str
+    password: str

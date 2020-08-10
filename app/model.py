@@ -36,3 +36,9 @@ class Book(Base):
 
     class Config:
         orm_mode = True
+
+
+class User(Base):
+    __tablename__ = "users"
+    username = Column(String(30), primary_key=True, index=True)
+    password = Column(String(128))

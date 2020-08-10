@@ -1,10 +1,14 @@
 from typing import Optional
 
 from fastapi import HTTPException
+from passlib.context import CryptContext
+
 from app import model
 from sqlalchemy.orm import Session
 
-from app.dto.request_objects import BookRequest, CategoryRequest
+from app.dto.request_objects import BookRequest, CategoryRequest, UserRequest
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class BookService:
@@ -112,3 +116,36 @@ class CategoryService:
             return category
         else:
             raise HTTPException(status_code=405, detail="Category with id {:d} doesn't exist".format(id))
+
+
+class UserService:
+    def get_users(self, db: Session, user_filter: Optional[str] = None):
+        query_result = db.query(model.User.username)
+        if user_filter:
+            query_result = query_result.filter(model.User.username.contains(user_filter))
+        return query_result.all()
+
+    def create_user(self, db: Session, user_request: UserRequest):
+        user = model.User(username=user_request.username, password=pwd_context.hash(user_request.password))
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+
+    def get_user(self, username: str, db: Session):
+        return self.validate_user_username(username, db)
+
+    def delete_user(self, username: str, db: Session):
+        user = self.get_user(username, db)
+        if user:
+            db.delete(user)
+            db.commit()
+            return {"Deleted": True}
+        return {"Deleted": False}
+
+    def validate_user_username(self, username: str, db: Session):
+        user = db.query(model.User).filter(model.User.username == username).first()
+        if user:
+            return user
+        else:
+            raise HTTPException(status_code=405, detail="User with username {:s} doesn't exist".format(username))
